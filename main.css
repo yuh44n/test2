@@ -212,3 +212,15 @@ footer p {
     padding: 10px 15px;
     cursor: pointer;
 }
+.user-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 10px;
+}
+
+.welcome-msg {
+  font-weight: bold;
+  color: #7494ec; 
+}

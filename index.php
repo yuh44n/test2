@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
   <head>
@@ -11,7 +15,6 @@
     />
   </head>
   <body>
-    <!-- Header Section avec logo et navigation -->
     <header>
       <div class="logo">
         <i class="bx bx-hotel"></i>
@@ -28,7 +31,12 @@
           <li><a href="paiements.html">Paiements</a></li>
         </ul>
         <div class="user-actions">
-          <a href="login.html" class="btn login-btn">Connexion/Nouveau Client</a>
+          <?php if (isset($_SESSION['ID_CLIENT'])): ?>
+            <span class="welcome-msg">Bienvenue, <?php echo htmlspecialchars($_SESSION['PRENOM']); ?></span>
+            <a href="logout.php" class="btn logout-btn">Déconnexion</a>
+          <?php else: ?>
+            <a href="login.html" class="btn login-btn">Connexion/Nouveau Client</a>
+          <?php endif; ?>
         </div>
       </nav>
     </header>
