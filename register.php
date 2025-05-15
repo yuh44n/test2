@@ -13,7 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $stmt->bind_param("ssssss", $nom, $prenom, $telephone, $email, $password, $date_inscription);
 
     if ($stmt->execute()) {
-        echo "Signup successful!";
+        header("Location: success.html");
     } else {
         echo "Error: " . $stmt->error;
     }
