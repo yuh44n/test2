@@ -7,29 +7,35 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     session_start();
 
-    $stmt = $conn->prepare("SELECT ID_CLIENT, NOM, PRENOM, password FROM client WHERE email = ?");
+    $stmt = $conn->prepare("SELECT ID_CLIENT, NOM, PRENOM, password, role FROM client WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $stmt->store_result();
 
-if ($stmt->num_rows === 1) {
-    $stmt->bind_result($id, $nom, $prenom, $hashed_password);
-    $stmt->fetch();
+    if ($stmt->num_rows === 1) {
+        $stmt->bind_result($id, $nom, $prenom, $hashed_password, $role);
+        $stmt->fetch();
 
-    if (password_verify($password, $hashed_password)) {
-        $_SESSION['ID_CLIENT'] = $id;
-        $_SESSION['NOM'] = $nom;
-        $_SESSION['PRENOM'] = $prenom;
+        if (password_verify($password, $hashed_password)) {
+            $_SESSION['ID_CLIENT'] = $id;
+            $_SESSION['NOM'] = $nom;
+            $_SESSION['PRENOM'] = $prenom;
+            $_SESSION['ROLE'] = $role;
 
-        header("Location: index.php");
-        exit();
+            // Redirection selon le rôle
+            if ($role == 0) {
+                header("Location: admin/index.php");
+            } else {
+                header("Location: index.php");
+            }
+            exit();
+        } else {
+            echo "Mot de passe invalide.";
+        }
     } else {
-        echo "Invalid password.";
+        echo "Email non trouvé.";
     }
-} else {
-    echo "Email not found.";
-}
 
-$stmt->close();
+    $stmt->close();
 }
 ?>
