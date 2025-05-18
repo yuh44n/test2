@@ -56,6 +56,6 @@ session_start();
       <p>&copy; 2025 Hôtel Élégance - Tous droits réservés</p>
     </footer>
 
-    <script src="../js/main.js"></script>
+    <script src="../main.js"></script>
   </body>
 </html>
