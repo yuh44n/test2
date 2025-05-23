@@ -1,5 +1,11 @@
 <?php
-session_start();
+require_once '../init.php';
+
+// Vérifier si l'utilisateur est un administrateur
+if (!isLoggedIn() || $_SESSION['ROLE'] != 0) {
+    header("Location: ../login.html");
+    exit();
+}
 ?>
 
 <!DOCTYPE html>
@@ -7,7 +13,7 @@ session_start();
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gestion Hôtelière</title>
+    <title>Administration - Hôtel Élégance</title>
     <link rel="stylesheet" href="../main.css" />
     <link
       href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
@@ -25,17 +31,17 @@ session_start();
       </div>
       <nav class="navbar">
         <ul class="nav-links">
-          <li><a href="index.html" class="active">Accueil</a></li>
-          <li><a href="chambres.html">Chambres</a></li>
-          <li><a href="reservations.html">Réservations</a></li>
-          <li><a href="paiements.html">Paiements</a></li>
+          <li><a href="index.php" class="active">Accueil</a></li>
+          <li><a href="chambres.php">Chambres</a></li>
+          <li><a href="reservations.php">Réservations</a></li>
+          <li><a href="paiements.php">Paiements</a></li>
         </ul>
         <div class="user-actions">
-          <?php if (isset($_SESSION['ID_CLIENT'])): ?>
+          <?php if (isLoggedIn()): ?>
             <span class="welcome-msg">Bienvenue, <?php echo htmlspecialchars($_SESSION['PRENOM']); ?></span>
-            <a href="logout.php" class="btn logout-btn">Déconnexion</a>
+            <a href="../logout.php" class="btn logout-btn">Déconnexion</a>
           <?php else: ?>
-            <a href="login.html" class="btn login-btn">Connexion/Nouveau Client</a>
+            <a href="../login.html" class="btn login-btn">Connexion</a>
           <?php endif; ?>
         </div>
       </nav>
@@ -45,8 +51,17 @@ session_start();
     <main>
       <section class="hero">
         <div class="hero-content">
-          <h2>Bienvenue à l'Hôtel Élégance</h2>
-          <p>Système de gestion hôtelière</p>
+          <h2>Administration - Hôtel Élégance</h2>
+          <p>Panneau d'administration pour la gestion de l'hôtel</p>
+          
+          <!-- Informations de session pour le débogage - À supprimer en production -->
+          <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 5px; text-align: left;">
+            <h3>Informations de session</h3>
+            <p><strong>ID de session:</strong> <?php echo session_id(); ?></p>
+            <p><strong>ID utilisateur:</strong> <?php echo $_SESSION['ID_CLIENT']; ?></p>
+            <p><strong>Nom:</strong> <?php echo $_SESSION['PRENOM'] . ' ' . $_SESSION['NOM']; ?></p>
+            <p><strong>Rôle:</strong> <?php echo $_SESSION['ROLE'] == 0 ? 'Administrateur' : 'Client'; ?></p>
+          </div>
         </div>
       </section>
     </main>

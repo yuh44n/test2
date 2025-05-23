@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once 'init.php';
 ?>
 
 <!DOCTYPE html>
@@ -25,13 +25,13 @@ session_start();
       </div>
       <nav class="navbar">
         <ul class="nav-links">
-          <li><a href="index.html" class="active">Accueil</a></li>
-          <li><a href="chambres.html">Chambres</a></li>
-          <li><a href="reservations.html">Réservations</a></li>
-          <li><a href="paiements.html">Paiements</a></li>
+          <li><a href="indexC.php" class="active">Accueil</a></li>
+          <li><a href="chambres.php">Chambres</a></li>
+          <li><a href="reservations.php">Réservations</a></li>
+          <li><a href="paiements.php">Paiements</a></li>
         </ul>
         <div class="user-actions">
-          <?php if (isset($_SESSION['ID_CLIENT'])): ?>
+          <?php if (isLoggedIn()): ?>
             <span class="welcome-msg">Bienvenue, <?php echo htmlspecialchars($_SESSION['PRENOM']); ?></span>
             <a href="logout.php" class="btn logout-btn">Déconnexion</a>
           <?php else: ?>
@@ -47,6 +47,16 @@ session_start();
         <div class="hero-content">
           <h2>Bienvenue à l'Hôtel Élégance</h2>
           <p>Système de gestion hôtelière</p>
+          
+          <!-- Debug information - Remove in production -->
+          <?php if (isLoggedIn()): ?>
+          <div style="margin-top: 20px; padding: 10px; background-color: #f8f9fa; border-radius: 5px; text-align: left;">
+            <p><strong>Session ID:</strong> <?php echo session_id(); ?></p>
+            <p><strong>User ID:</strong> <?php echo $_SESSION['ID_CLIENT']; ?></p>
+            <p><strong>Name:</strong> <?php echo $_SESSION['PRENOM'] . ' ' . $_SESSION['NOM']; ?></p>
+            <p><strong>Role:</strong> <?php echo $_SESSION['ROLE'] == 0 ? 'Admin' : 'Client'; ?></p>
+          </div>
+          <?php endif; ?>
         </div>
       </section>
     </main>

@@ -1,7 +1,8 @@
 <?php
-session_start();
-if(!isset($_session['EMAIL'])){
-    header("location : login.html");
+require_once 'init.php';
+if(!isset($_SESSION['ID_CLIENT'])){
+    header("Location: login.html");
+    exit();
 }
 ?>
 <!DOCTYPE html>
@@ -12,7 +13,7 @@ if(!isset($_session['EMAIL'])){
     <title>Document</title>
 </head>
 <body>
-    <h1> Welcome, <?php echo $_session['EMAIL']?> </h1>
+    <h1> Welcome, <?php echo $_SESSION['PRENOM']?> </h1>
     <p>This is your Dashboard</p>
     <a href="logout.php"></a>
 </body>

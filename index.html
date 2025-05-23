@@ -22,18 +22,8 @@
       <nav class="navbar">
         <ul class="nav-links">
           <li><a href="index.html" class="active">Accueil</a></li>
-          <li><a href="chambres.html">Chambres</a></li>
-          <li><a href="reservations.html">Réservations</a></li>
-          <li><a href="paiements.html">Paiements</a></li>
         </ul>
-        <div class="user-actions">
-          <?php if (isset($_SESSION['ID_CLIENT'])): ?>
-            <span class="welcome-msg">Bienvenue, <?php echo htmlspecialchars($_SESSION['PRENOM']); ?></span>
-            <a href="logout.php" class="btn logout-btn">Déconnexion</a>
-          <?php else: ?>
             <a href="login.html" class="btn login-btn">Connexion/Nouveau Client</a>
-          <?php endif; ?>
-        </div>
       </nav>
     </header>
 
@@ -42,7 +32,7 @@
       <section class="hero">
         <div class="hero-content">
           <h2>Bienvenue à l'Hôtel Élégance</h2>
-          <p>Système de gestion hôtelière</p>
+          <p>Veuillez vous connecter/s'inscrire pour pouvoir réserver votre séjour.</p>
         </div>
       </section>
     </main>

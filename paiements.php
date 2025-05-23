@@ -1,10 +1,20 @@
+<?php
+require_once 'init.php';
+
+// Vérifier si l'utilisateur est connecté
+if (!isLoggedIn()) {
+    header("Location: login.html");
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Paiements - Hôtel Élégance</title>
-    <link rel="stylesheet" href="../main.css" />
+    <link rel="stylesheet" href="main.css" />
     <link
       href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
       rel="stylesheet"
@@ -22,13 +32,18 @@
       </div>
       <nav class="navbar">
         <ul class="nav-links">
-          <li><a href="index.html">Accueil</a></li>
+          <li><a href="index.php">Accueil</a></li>
           <li><a href="chambres.php">Chambres</a></li>
-          <li><a href="reservations.html">Réservations</a></li>
-          <li><a href="paiements.html" class="active">Paiements</a></li>
+          <li><a href="reservations.php">Réservations</a></li>
+          <li><a href="paiements.php" class="active">Paiements</a></li>
         </ul>
         <div class="user-actions">
-          <a href="../login.html" class="btn login-btn">Connexion</a>
+          <?php if (isLoggedIn()): ?>
+            <span class="welcome-msg">Bienvenue, <?php echo htmlspecialchars($_SESSION['PRENOM']); ?></span>
+            <a href="logout.php" class="btn logout-btn">Déconnexion</a>
+          <?php else: ?>
+            <a href="login.html" class="btn login-btn">Connexion</a>
+          <?php endif; ?>
         </div>
       </nav>
     </header>
@@ -181,6 +196,6 @@
       <p>&copy; 2025 Hôtel Élégance - Tous droits réservés</p>
     </footer>
 
-    <script src="../main.js"></script>
+    <script src="main.js"></script>
   </body>
 </html>
