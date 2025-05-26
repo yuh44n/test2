@@ -11,7 +11,9 @@ if (!isLoggedIn() || $_SESSION['ROLE'] != 0) {
 $conn->set_charset("utf8");
 
 // Récupération des chambres depuis la base de données
-$sql = "SELECT * FROM chambre"; // Nom de table selon la capture d'écran
+$sql = "SELECT c.*, t.TYPE as TYPE_CHAMBRE 
+        FROM chambre c 
+        LEFT JOIN type_chambre t ON c.ID_TYPE_CHAMBRE = t.ID_TYPE_CHAMBRE";
 $result = $conn->query($sql);
 
 // Traitement des actions (ajout, modification, suppression)
@@ -57,6 +59,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } elseif ($_POST['action'] == 'delete') {
             $id = $_POST['ID_CHAMBRE'];
             
+            // Check for existing reservations
+            $check_sql = "SELECT COUNT(*) as count FROM reservation WHERE ID_CHAMBRE = ?";
+            $check_stmt = $conn->prepare($check_sql);
+            $check_stmt->bind_param("i", $id);
+            $check_stmt->execute();
+            $result = $check_stmt->get_result();
+            $count = $result->fetch_assoc()['count'];
+            
+            if ($count > 0) {
+                header("Location: chambres.php?error=" . urlencode("Impossible de supprimer la chambre car elle a des réservations actives."));
+                exit();
+            }
+            
+            // If no reservations exist, proceed with deletion
             $sql = "DELETE FROM chambre WHERE ID_CHAMBRE=?";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("i", $id);
@@ -65,7 +81,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 header("Location: chambres.php?msg=deleted");
                 exit();
             } else {
-                echo "Erreur: " . $stmt->error;
+                header("Location: chambres.php?error=" . urlencode("Erreur lors de la suppression de la chambre."));
+                exit();
             }
         }
     }
@@ -89,6 +106,7 @@ if ($result_types && $result_types->num_rows > 0) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chambres - Hôtel Élégance</title>
     <link rel="stylesheet" href="../main.css" />
+    <link rel="stylesheet" href="admin.css" />
     <link
       href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
       rel="stylesheet"
@@ -98,26 +116,26 @@ if ($result_types && $result_types->num_rows > 0) {
   <body>
     <!-- Header Section avec logo et navigation -->
     <header>
-      <div class="logo">
+      <div class="admin-logo">
         <i class="bx bx-hotel"></i>
         <h1>Hôtel Élégance</h1>
       </div>
-      <div class="nav-toggle" id="navToggle">
+      <div class="admin-nav-toggle" id="navToggle">
         <i class="bx bx-menu"></i>
       </div>
-      <nav class="navbar">
-        <ul class="nav-links">
+      <nav class="admin-navbar">
+        <ul class="admin-nav-links">
           <li><a href="index.php">Accueil</a></li>
           <li><a href="chambres.php" class="active">Chambres</a></li>
           <li><a href="reservations.php">Réservations</a></li>
           <li><a href="paiements.php">Paiements</a></li>
         </ul>
-        <div class="user-actions">
+        <div class="admin-user-actions">
           <?php if (isLoggedIn()): ?>
-            <span class="welcome-msg">Bienvenue, <?php echo htmlspecialchars($_SESSION['PRENOM']); ?></span>
-            <a href="../logout.php" class="btn logout-btn">Déconnexion</a>
+            <span class="admin-welcome-msg">Bienvenue, <?php echo htmlspecialchars($_SESSION['PRENOM']); ?></span>
+            <a href="../logout.php" class="admin-btn admin-logout-btn">Déconnexion</a>
           <?php else: ?>
-            <a href="../login.html" class="btn login-btn">Connexion</a>
+            <a href="../login.html" class="admin-btn admin-login-btn">Connexion</a>
           <?php endif; ?>
         </div>
       </nav>
@@ -125,7 +143,7 @@ if ($result_types && $result_types->num_rows > 0) {
 
     <!-- Contenu principal -->
     <main>
-      <section class="page-header">
+      <section class="admin-page-header">
         <h2>Gestion des Chambres</h2>
         <p>Liste des chambres disponibles dans la base de données</p>
       </section>
@@ -146,17 +164,22 @@ if ($result_types && $result_types->num_rows > 0) {
                   break;
           }
           if (!empty($message)) {
-              echo '<div class="success-message">' . $message . '</div>';
+              echo '<div class="admin-success-message">' . $message . '</div>';
           }
+      }
+      
+      // Affichage des messages d'erreur
+      if (isset($_GET['error'])) {
+          echo '<div class="admin-error-message">' . htmlspecialchars($_GET['error']) . '</div>';
       }
       ?>
       
       <section class="chambres-management">
-        <div class="chambres-controls">
-          <button class="btn add-btn" onclick="openAddModal()"><i class="bx bx-plus"></i> Ajouter une chambre</button>
-          <div class="search-filter">
-            <input type="text" id="searchInput" placeholder="Rechercher une chambre..." class="search-input" onkeyup="filterTable()">
-            <select id="statusFilter" class="filter-select" onchange="filterTable()">
+        <div class="admin-controls">
+          <button class="admin-btn admin-add-btn" onclick="openAddModal()"><i class="bx bx-plus"></i> Ajouter une chambre</button>
+          <div class="admin-search-filter">
+            <input type="text" id="searchInput" placeholder="Rechercher une chambre..." class="admin-search-input" onkeyup="filterTable()">
+            <select id="statusFilter" class="admin-filter-select" onchange="filterTable()">
               <option value="">Tous les statuts</option>
               <option value="Libre">Libre</option>
               <option value="Occupée">Occupée</option>
@@ -165,14 +188,14 @@ if ($result_types && $result_types->num_rows > 0) {
           </div>
         </div>
         
-        <div class="table-container">
+        <div class="admin-data-table">
           <table id="chambresTable">
             <thead>
               <tr>
                 <th></th>
                 <th>Actions</th>
                 <th onclick="sortTable(0)">ID_CHAMBRE <i class="bx bx-sort-alt-2"></i></th>
-                <th onclick="sortTable(1)">ID_TYPE_CHAMBRE <i class="bx bx-sort-alt-2"></i></th>
+                <th onclick="sortTable(1)">Type de Chambre <i class="bx bx-sort-alt-2"></i></th>
                 <th onclick="sortTable(2)">NUMERO_CHAMBRE <i class="bx bx-sort-alt-2"></i></th>
                 <th onclick="sortTable(3)">TARIF <i class="bx bx-sort-alt-2"></i></th>
                 <th onclick="sortTable(4)">STATUT_CHAMBRE <i class="bx bx-sort-alt-2"></i></th>
@@ -181,40 +204,21 @@ if ($result_types && $result_types->num_rows > 0) {
             <tbody>
               <?php
               if ($result && $result->num_rows > 0) {
-                  // Afficher les données de chaque ligne
                   while($row = $result->fetch_assoc()) {
-                      $statusClass = "";
-                      switch ($row["STATUT_CHAMBRE"]) {
-                          case "Libre":
-                              $statusClass = "status-libre";
-                              break;
-                          case "Occupée":
-                              $statusClass = "status-occupee";
-                              break;
-                          case "Maintenance":
-                              $statusClass = "status-maintenance";
-                              break;
-                      }
-                      
-                      echo "<tr>
-                              <td><input type='checkbox' class='row-checkbox'></td>
-                              <td>
-                                <button class='btn btn-small edit-btn' onclick='openEditModal(" . $row["ID_CHAMBRE"] . ", " . $row["ID_TYPE_CHAMBRE"] . ", " . $row["NUMERO_CHAMBRE"] . ", " . $row["TARIF"] . ", \"" . $row["STATUT_CHAMBRE"] . "\")'>
-                                  <i class='bx bx-edit'></i> Éditer
-                                </button>
-                                <button class='btn btn-small delete-btn' onclick='openDeleteModal(" . $row["ID_CHAMBRE"] . ")'>
-                                  <i class='bx bx-trash'></i> Supprimer
-                                </button>
-                              </td>
-                              <td>" . $row["ID_CHAMBRE"] . "</td>
-                              <td>" . $row["ID_TYPE_CHAMBRE"] . "</td>
-                              <td>" . $row["NUMERO_CHAMBRE"] . "</td>
-                              <td>" . $row["TARIF"] . " €</td>
-                              <td class='" . $statusClass . "'>" . $row["STATUT_CHAMBRE"] . "</td>
-                            </tr>";
+                      echo "<tr>";
+                      echo "<td></td>";
+                      // Actions column
+                      echo "<td class='admin-actions'>";
+                      echo "<button class='admin-btn-icon' onclick='openEditModal(" . json_encode($row) . ")'><i class='bx bx-edit'></i></button>";
+                      echo "<button class='admin-btn-icon' onclick='openDeleteModal(" . $row["ID_CHAMBRE"] . ")'><i class='bx bx-trash'></i></button>";
+                      echo "</td>";
+                      echo "<td>" . htmlspecialchars($row['ID_CHAMBRE']) . "</td>";
+                      echo "<td>" . htmlspecialchars($row['TYPE_CHAMBRE']) . "</td>";
+                      echo "<td>" . htmlspecialchars($row['NUMERO_CHAMBRE']) . "</td>";
+                      echo "<td>" . htmlspecialchars($row['TARIF']) . " €</td>";
+                      echo "<td><span class='status-badge " . strtolower($row['STATUT_CHAMBRE']) . "'>" . htmlspecialchars($row['STATUT_CHAMBRE']) . "</span></td>";
+                      echo "</tr>";
                   }
-              } else {
-                  echo "<tr><td colspan='7'>Aucune chambre trouvée</td></tr>";
               }
               ?>
             </tbody>
