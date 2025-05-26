@@ -131,9 +131,10 @@ if ($result && $result->num_rows > 0) {
         </div>
         <nav class="navbar">
             <ul class="nav-links">
-                <li><a href="index.php">Accueil</a></li>
-                <li><a href="chambres.php" class="active">Chambres disponibles</a></li>
-                <li><a href="reservations.php">Mes réservations</a></li>
+                <li><a href="indexC.php">Accueil</a></li>
+                <li><a href="chambres.php">Chambres</a></li>
+                <li><a href="reservations.php" class="active">Réservations</a></li>
+                <li><a href="paiements.php">Paiements</a></li>
             </ul>
             <div class="user-actions">
                 <?php if (isLoggedIn()): ?>
