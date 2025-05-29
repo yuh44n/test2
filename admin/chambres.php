@@ -210,7 +210,7 @@ if ($result_types && $result_types->num_rows > 0) {
                       echo "<td></td>";
                       // Actions column
                       echo "<td class='admin-actions'>";
-                      echo "<button class='admin-btn-icon' onclick='openEditModal(" . json_encode($row) . ")'><i class='bx bx-edit'></i></button>";
+                      echo "<button class='admin-btn-icon' onclick='openEditModal(" . $row["ID_CHAMBRE"] . ", " . $row["ID_TYPE_CHAMBRE"] . ", " . $row["NUMERO_CHAMBRE"] . ", " . $row["TARIF"] . ", \"" . $row["STATUT_CHAMBRE"] . "\")'><i class='bx bx-edit'></i></button>";
                       echo "<button class='admin-btn-icon' onclick='openDeleteModal(" . $row["ID_CHAMBRE"] . ")'><i class='bx bx-trash'></i></button>";
                       echo "</td>";
                       echo "<td>" . htmlspecialchars($row['ID_CHAMBRE']) . "</td>";
@@ -238,7 +238,7 @@ if ($result_types && $result_types->num_rows > 0) {
               <label for="ID_TYPE_CHAMBRE">Type de chambre</label>
               <select name="ID_TYPE_CHAMBRE" id="ID_TYPE_CHAMBRE" required>
                 <?php foreach ($types_chambres as $type): ?>
-                <option value="<?php echo $type['ID_TYPE_CHAMBRE']; ?>"><?php echo isset($type['LIBELLE']) ? $type['LIBELLE'] : 'Type ' . $type['ID_TYPE_CHAMBRE']; ?></option>
+                <option value="<?php echo $type['ID_TYPE_CHAMBRE']; ?>"><?php echo isset($type['LIBELLE']) ? $type['LIBELLE'] : '' . $type['TYPE']; ?></option>
                 <?php endforeach; ?>
               </select>
             </div>
@@ -278,7 +278,7 @@ if ($result_types && $result_types->num_rows > 0) {
               <label for="edit_ID_TYPE_CHAMBRE">Type de chambre</label>
               <select name="ID_TYPE_CHAMBRE" id="edit_ID_TYPE_CHAMBRE" required>
                 <?php foreach ($types_chambres as $type): ?>
-                <option value="<?php echo $type['ID_TYPE_CHAMBRE']; ?>"><?php echo isset($type['LIBELLE']) ? $type['LIBELLE'] : 'Type ' . $type['ID_TYPE_CHAMBRE']; ?></option>
+                <option value="<?php echo $type['ID_TYPE_CHAMBRE']; ?>"><?php echo isset($type['LIBELLE']) ? $type['LIBELLE'] : '' . $type['TYPE']; ?></option>
                 <?php endforeach; ?>
               </select>
             </div>

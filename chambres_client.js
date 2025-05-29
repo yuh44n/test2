@@ -1,3 +1,15 @@
+document.addEventListener('DOMContentLoaded', function() {
+    function updatePageContent(newContent) {
+        document.getElementById('content-container').innerHTML = newContent;
+        document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+            if (!document.querySelector(`link[href="${link.href}"]`)) {
+                document.head.appendChild(link.cloneNode(true));
+            }
+        });
+    }
+  });
+
+  
 // Fonctions pour gérer les modals
 function openReserveModal(id, idType, numero, tarif) {
     document.getElementById('reserve_id_chambre').value = id;
