@@ -121,6 +121,7 @@ try {
           <li><a href="index.php">Accueil</a></li>
           <li><a href="chambres.php">Chambres</a></li>
           <li><a href="reservations.php">Réservations</a></li>
+          <li><a href="clients.php">Clients</a></li>
           <li><a href="paiements.php" class="active">Paiements</a></li>
         </ul>
         <div class="admin-user-actions">

@@ -128,6 +128,7 @@ if ($result_types && $result_types->num_rows > 0) {
           <li><a href="index.php">Accueil</a></li>
           <li><a href="chambres.php" class="active">Chambres</a></li>
           <li><a href="reservations.php">Réservations</a></li>
+          <li><a href="clients.php">Clients</a></li>
           <li><a href="paiements.php">Paiements</a></li>
         </ul>
         <div class="admin-user-actions">

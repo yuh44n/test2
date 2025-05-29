@@ -55,6 +55,7 @@ if ($result && $result->num_rows > 0) {
           <li><a href="index.php">Accueil</a></li>
           <li><a href="chambres.php">Chambres</a></li>
           <li><a href="reservations.php" class="active">Réservations</a></li>
+          <li><a href="clients.php">Clients</a></li>
           <li><a href="paiements.php">Paiements</a></li>
         </ul>
         <div class="admin-user-actions">

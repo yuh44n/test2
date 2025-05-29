@@ -123,3 +123,144 @@ function initPage() {
 
 // Exécuter au chargement de la page
 window.addEventListener('DOMContentLoaded', initPage);
+// Variables globales pour PayPal
+      let paypalButtons = {};
+      
+      // Fonction pour sélectionner le mode de paiement
+      function selectPaymentMethod(method, reservationId) {
+        // Réinitialiser toutes les méthodes
+        document.querySelectorAll('.payment-method').forEach(el => {
+          el.classList.remove('selected');
+        });
+        
+        // Sélectionner la méthode choisie
+        event.target.closest('.payment-method').classList.add('selected');
+        
+        // Mettre à jour le champ caché
+        document.getElementById('paymentMethod' + reservationId).value = method;
+        
+        // Afficher/masquer les sections appropriées
+        const cashSection = document.getElementById('cashPayment' + reservationId);
+        const paypalSection = document.getElementById('paypalPayment' + reservationId);
+        
+        if (method === 'cash') {
+          cashSection.style.display = 'block';
+          paypalSection.style.display = 'none';
+        } else if (method === 'paypal') {
+          cashSection.style.display = 'none';
+          paypalSection.style.display = 'block';
+          
+          // Initialiser PayPal si pas encore fait
+          if (!paypalButtons[reservationId]) {
+            initializePayPal(reservationId);
+          }
+        }
+      }
+      
+      // Fonction pour initialiser PayPal
+      function initializePayPal(reservationId) {
+        const reservationCard = document.querySelector(`[data-reservation-id="${reservationId}"]`);
+        const montant = reservationCard ? reservationCard.dataset.montant : 0;
+        
+        paypal.Buttons({
+          createOrder: function(data, actions) {
+            return actions.order.create({
+              purchase_units: [{
+                amount: {
+                  value: montant,
+                  currency_code: 'EUR'
+                },
+                description: `Paiement réservation #${reservationId}`
+              }]
+            });
+          },
+          onApprove: function(data, actions) {
+            return actions.order.capture().then(function(details) {
+              // Soumettre le formulaire avec les détails PayPal
+              const form = document.getElementById('paymentForm' + reservationId);
+              
+              // Ajouter les détails PayPal au formulaire
+              const paypalDetails = document.createElement('input');
+              paypalDetails.type = 'hidden';
+              paypalDetails.name = 'paypal_details';
+              paypalDetails.value = JSON.stringify(details);
+              form.appendChild(paypalDetails);
+              
+              // Soumettre le formulaire
+              form.submit();
+            });
+          },
+          onError: function(err) {
+            console.error('Erreur PayPal:', err);
+            alert('Une erreur est survenue lors du paiement PayPal. Veuillez réessayer.');
+          }
+        }).render('#paypal-button-container-' + reservationId);
+        
+        paypalButtons[reservationId] = true;
+      }
+      
+      // Fonction pour filtrer les paiements
+      function filterPaiements() {
+        const searchInput = document.getElementById('searchInput').value.toLowerCase();
+        const statusFilter = document.getElementById('statusFilter').value;
+        const rows = document.querySelectorAll('#paiementsTable tbody tr');
+        
+        rows.forEach(row => {
+          const text = row.textContent.toLowerCase();
+          const methodCell = row.querySelector('td:nth-child(<?php echo $isAdmin ? "5" : "4"; ?>)');
+          const method = methodCell ? methodCell.textContent.trim() : '';
+          
+          let showRow = true;
+          
+          // Filtrage par recherche
+          if (searchInput && !text.includes(searchInput)) {
+            showRow = false;
+          }
+          
+          // Filtrage par statut/méthode
+          if (statusFilter !== 'all' && !method.includes(statusFilter)) {
+            showRow = false;
+          }
+          
+          row.style.display = showRow ? '' : 'none';
+        });
+      }
+      
+      // Fonction pour voir les détails d'un paiement
+      function viewPaymentDetails(paymentId) {
+        // Cette fonction pourrait ouvrir une modal avec plus de détails
+        alert('Fonctionnalité à implémenter : Détails du paiement #' + paymentId);
+      }
+      
+      // Fonction pour imprimer un reçu
+      function printReceipt(paymentId) {
+        // Ouvrir une nouvelle fenêtre pour l'impression
+        window.open('print_receipt.php?id=' + paymentId, '_blank');
+      }
+      
+      // Filtrage en temps réel
+      document.getElementById('searchInput').addEventListener('keyup', filterPaiements);
+      document.getElementById('statusFilter').addEventListener('change', filterPaiements);
+      
+      // Remplir les options du filtre avec les méthodes de paiement disponibles
+      document.addEventListener('DOMContentLoaded', function() {
+        const statusFilter = document.getElementById('statusFilter');
+        const methods = new Set();
+        
+        // Collecter toutes les méthodes de paiement
+        document.querySelectorAll('#paiementsTable tbody tr').forEach(row => {
+          const methodCell = row.querySelector('td:nth-child(<?php echo $isAdmin ? "5" : "4"; ?>)');
+          if (methodCell) {
+            const method = methodCell.textContent.trim().split('\n')[1]?.trim();
+            if (method) methods.add(method);
+          }
+        });
+        
+        // Ajouter les options au select
+        methods.forEach(method => {
+          const option = document.createElement('option');
+          option.value = method;
+          option.textContent = method;
+          statusFilter.appendChild(option);
+        });
+      });
