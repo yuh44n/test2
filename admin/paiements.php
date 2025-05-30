@@ -10,7 +10,7 @@ if (!isLoggedIn() || $_SESSION['ROLE'] != 0) {
 // Définir l'encodage des caractères
 $conn->set_charset("utf8");
 
-// Récupération des paiements depuis la base de données
+// Récupération des paiements depuis la base de données - FIXED: Added MOYEN_PAIEMENT
 $sql_paiements = "SELECT p.*, c.NOM, c.PRENOM, r.ID_RESERVATION, r.DATE_ARRIVEE, r.DATE_DEPART 
                   FROM paiement p 
                   LEFT JOIN reservation r ON p.ID_RESERVATION = r.ID_RESERVATION 
@@ -63,6 +63,28 @@ try {
         'en_attente' => 0
     ];
     $paiements = [];
+}
+
+// FIXED: Function to format payment method display
+function formatPaymentMethod($method) {
+    if (empty($method)) {
+        return 'Non spécifié';
+    }
+    
+    switch (strtolower($method)) {
+        case 'carte':
+            return 'Carte bancaire';
+        case 'espèces':
+            return 'Espèces';
+        case 'cash':
+            return 'Espèces';
+        case 'virement':
+            return 'Virement bancaire';
+        case 'cheque':
+            return 'Chèque';
+        default:
+            return htmlspecialchars($method);
+    }
 }
 ?>
 
@@ -209,7 +231,7 @@ try {
                   <td><?php echo htmlspecialchars($paiement['PRENOM'] . ' ' . $paiement['NOM']); ?></td>
                   <td>#<?php echo $paiement['ID_RESERVATION']; ?></td>
                   <td><?php echo number_format($paiement['MONTANT'], 0, ',', ' '); ?> €</td>
-                  <td><?php echo isset($paiement['METHODE_PAIEMENT']) ? htmlspecialchars($paiement['METHODE_PAIEMENT']) : 'Carte bancaire'; ?></td>
+                  <td><?php echo formatPaymentMethod($paiement['MOYEN_PAIEMENT'] ?? ''); ?></td>
                   <td><?php echo date('d/m/Y', strtotime($paiement['DATE_PAIEMENT'])); ?></td>
                   <td>
                     <span class="admin-status-badge admin-complété">
@@ -217,8 +239,6 @@ try {
                     </span>
                   </td>
                   <td class="admin-actions">
-                    <button class="admin-btn-icon" onclick="location.href='voir_paiement.php?id=<?php echo $paiement['ID_PAIEMENT']; ?>'"><i class="bx bx-show"></i></button>
-                    <button class="admin-btn-icon" onclick="location.href='editer_paiement.php?id=<?php echo $paiement['ID_PAIEMENT']; ?>'"><i class="bx bx-edit"></i></button>
                     <button class="admin-btn-icon" onclick="confirmerSuppression(<?php echo $paiement['ID_PAIEMENT']; ?>)"><i class="bx bx-trash"></i></button>
                   </td>
                 </tr>
