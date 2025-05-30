@@ -1,7 +1,17 @@
-// Navigation toggle pour mobile/responsive
 const navToggle = document.getElementById('navToggle');
 const navbar = document.querySelector('.navbar');
 const mainContent = document.querySelector('main');
+
+document.addEventListener('DOMContentLoaded', function() {
+  function updatePageContent(newContent) {
+      document.getElementById('content-container').innerHTML = newContent;
+      document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+          if (!document.querySelector(`link[href="${link.href}"]`)) {
+              document.head.appendChild(link.cloneNode(true));
+          }
+      });
+  }
+});
 
 // Fonction pour gérer la navigation et les animations
 function setupNavigation() {
